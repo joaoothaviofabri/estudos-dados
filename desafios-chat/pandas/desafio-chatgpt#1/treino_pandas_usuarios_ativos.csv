@@ -1,0 +1,6 @@
+,user_id,username,age,city,login_count,last_login_days,ativo,nivel
+0,1,ana,18,SP,5,2,True,baixo
+1,2,bruno,22,RJ,12,1,True,medio
+3,4,dani,25,MG,20,0,True,medio
+5,6,fernanda,21,SP,15,3,True,medio
+7,8,helena,28,RJ,40,1,True,alto
