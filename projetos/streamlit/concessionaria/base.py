@@ -91,9 +91,6 @@ elif performace_ativo < 0:
 else:
     texto_performace_carteira = f"Performace da carteira com todos os ativos: {performace_ativo:.1%}"
 
-
-
-
 st.write(f"""
 ### Performace dos Ativos
 Essa foi a performace de cada ativo no período selecionado:
