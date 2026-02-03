@@ -73,7 +73,7 @@ st.markdown(
 st.header('Filtros')
 
 # Filtro de seleção das Marcas (em upper)
-selecao_marcas = st.multiselect('Selecione a marca para vizualizar', list(marcas_rename.keys()))
+selecao_marcas = st.multiselect('Selecione a marca para vizualizar:', list(marcas_rename.keys()))
 selecao_marcas = [marcas_rename[m] for m in selecao_marcas]
 if selecao_marcas:
     dados = dados[dados['marca'].isin(selecao_marcas)]
@@ -81,7 +81,7 @@ if selecao_marcas:
 dados['marca'] = dados['marca'].str.upper().str.strip()
 
 # Filtro de vizualização das informações
-selecao_info_carro = st.selectbox('Selecione a informação que deseje vizualizar', [dados_info_rename[col] for col in dados_info_carros])
+selecao_info_carro = st.selectbox('Selecione a informação que deseja vizualizar:', [dados_info_rename[col] for col in dados_info_carros])
 selecao_info_carro = [col for col, nome in dados_info_rename.items()
                         if nome == selecao_info_carro][0]
 
