@@ -1,26 +1,27 @@
 # importação de bibliotecas
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 # Personalização Geral
 st.set_page_config(layout='wide')
 
 # Markdown
 st.markdown(
-      """
-      <style>
-      /* Título "Filtro" */
-      section[data-testid="stSidebar"] h2 {
-            font-size: 56px
-      }
-      
-      /* Texto do multiselect e selectbox */
-      section[data-testid="stSidebar"] label {
-            font-size: 48px
-      }
-      </style>
-      """,
-      unsafe_allow_html=True
+    """
+    <style>
+    /* Título "Filtro" */
+    section[data-testid="stSidebar"] h2 {
+        font-size: 56px
+    }
+    
+    /* Texto do multiselect e selectbox */
+    section[data-testid="stSidebar"] label {
+        font-size: 48px
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
 #carregamento de dados e filtros
@@ -49,24 +50,38 @@ sistema_injecao_rename = {'4bbl': '4BBL', 'corpo_simples': 'Corpo Simples', 'dup
 
 filtro_infos_rename = {'tipo_combustivel': combustivel_rename, 'aspiracao': aspiracao_rename, 'tipo_carroceria': carroceria_rename, 'tracao': tracao_rename, 'local_motor': local_motor_rename, 'sistema_combustivel': sistema_injecao_rename}
 
+# Cores padrão do gráfico
+cores_padrao = [
+    "#1B4F72",
+    "#0F67B1",
+    "#2E8BC0",
+    "#3FA2F6",
+    "#96C9F4",
+    "#5AB8D6",
+    "#7AD1E8",
+    "#A1E3D8",
+    "#C7EDE6",
+    "#FAFFAF"
+]
+
 # Criação do gráfico e filtro
 st.write("""
 # Informações Técnicas de Carros por Marca
 """)
 
 #  Vizualização - Sidebar
-st.sidebar.header("Filtros")
+st.header("Filtros")
 
 # Filtro de seleção das Marcas (em upper)
-selecao_marcas = st.sidebar.multiselect('Selecione a marca para vizualizar', list(marcas_rename.keys()))
+selecao_marcas = st.multiselect('Selecione a marca para vizualizar', list(marcas_rename.keys()))
+selecao_marcas = [marcas_rename[m] for m in selecao_marcas]
 if selecao_marcas:
-      selecao_marcas = [marcas_rename[m] for m in selecao_marcas]
-      dados = dados[dados['marca'].isin(selecao_marcas)]
+    dados = dados[dados['marca'].isin(selecao_marcas)]
 
 dados['marca'] = dados['marca'].str.upper().str.strip()
 
 # Filtro de vizualização das informações
-selecao_info_carro = st.sidebar.selectbox('Selecione a informação que deseje vizualizar', [dados_info_rename[col] for col in dados_info_carros])
+selecao_info_carro = st.selectbox('Selecione a informação que deseje vizualizar', [dados_info_rename[col] for col in dados_info_carros])
 selecao_info_carro = [col for col, nome in dados_info_rename.items()
                         if nome == selecao_info_carro][0]
 
@@ -76,10 +91,19 @@ dados[legenda_filtro] = dados[selecao_info_carro]
 
 # Rename das informações da Legenda
 if selecao_info_carro in filtro_infos_rename:
-      dados[legenda_filtro] = dados[selecao_info_carro].map(filtro_infos_rename[selecao_info_carro])
+    dados[legenda_filtro] = dados[selecao_info_carro].map(filtro_infos_rename[selecao_info_carro])
 else:
-      dados[legenda_filtro] = dados[selecao_info_carro]
+    dados[legenda_filtro] = dados[selecao_info_carro]
 
-# Gráfico
-quantidade_carros_por_marca = (dados.groupby(['marca', legenda_filtro]).size().reset_index(name='quantidade').rename(columns={'marca': 'Marca', 'quantidade': 'Quantidade'}))
-st.bar_chart(quantidade_carros_por_marca, x='Marca', y='Quantidade', color=legenda_filtro, height=500)
+# Gráfico de Pizza
+if len(selecao_marcas) == 1:
+    quantidade_carros_por_marca = (dados.groupby([legenda_filtro]).size().reset_index(name='valores').rename(columns={'valores': 'Valores'}))
+    fig_pie = px.pie(quantidade_carros_por_marca, values='Valores', names=legenda_filtro, title=f'Quantidade de carros da marca {selecao_marcas[0].upper()} filtrados por {legenda_filtro.upper()}', hole=0.5, color=legenda_filtro, color_discrete_sequence=cores_padrao)
+    fig_pie.update_traces(textinfo='percent+value')
+    st.plotly_chart(fig_pie)
+
+# Gráfico de Barra
+else:
+    quantidade_carros_por_marca = (dados.groupby(['marca', legenda_filtro]).size().reset_index(name='quantidade').rename(columns={'marca': 'Marca', 'quantidade': 'Quantidade'}))
+    fig_bar = px.bar(quantidade_carros_por_marca, x='Marca', y='Quantidade', color=legenda_filtro, color_discrete_sequence=cores_padrao, height=500, width=1500)
+    st.plotly_chart(fig_bar, use_container_width=True)
