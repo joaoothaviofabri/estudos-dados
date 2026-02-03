@@ -49,16 +49,16 @@ sistema_injecao_rename = {'4bbl': '4BBL', 'corpo_simples': 'Corpo Simples', 'dup
 
 filtro_infos_rename = {'tipo_combustivel': combustivel_rename, 'aspiracao': aspiracao_rename, 'tipo_carroceria': carroceria_rename, 'tracao': tracao_rename, 'local_motor': local_motor_rename, 'sistema_combustivel': sistema_injecao_rename}
 
-# Criação do gráfico e filtro
-st.write("""
-# Informações Técnicas de Carros por Marca
-""")
+# Título principal
+st.markdown(
+"<h1 style='text-align: center'>Gráfico de Informações Técnicas de Carros por Marca em Estoque</h1>", unsafe_allow_html=True
+)
 
 #  Vizualização - Sidebar
 st.sidebar.header("Filtros")
 
 # Filtro de seleção das Marcas (em upper)
-selecao_marcas = st.sidebar.multiselect('Selecione a marca para vizualizar', list(marcas_rename.keys()))
+selecao_marcas = st.sidebar.multiselect('Selecione a marca para vizualizar:', list(marcas_rename.keys()))
 if selecao_marcas:
     selecao_marcas = [marcas_rename[m] for m in selecao_marcas]
     dados = dados[dados['marca'].isin(selecao_marcas)]
@@ -66,7 +66,7 @@ if selecao_marcas:
 dados['marca'] = dados['marca'].str.upper().str.strip()
 
 # Filtro de vizualização das informações
-selecao_info_carro = st.sidebar.selectbox('Selecione a informação que deseje vizualizar', [dados_info_rename[col] for col in dados_info_carros])
+selecao_info_carro = st.sidebar.selectbox('Selecione a informação que deseja vizualizar:', [dados_info_rename[col] for col in dados_info_carros])
 selecao_info_carro = [col for col, nome in dados_info_rename.items()
                         if nome == selecao_info_carro][0]
 
@@ -81,5 +81,5 @@ else:
     dados[legenda_filtro] = dados[selecao_info_carro]
 
 # Gráfico
-quantidade_carros_por_marca = (dados.groupby(['marca', legenda_filtro]).size().reset_index(name='quantidade').rename(columns={'marca': 'Marca', 'quantidade': 'Quantidade'}))
-st.bar_chart(quantidade_carros_por_marca, x='Marca', y='Quantidade', color=legenda_filtro, height=500)
+quantidade_carros_por_marca = (dados.groupby(['marca', legenda_filtro]).size().reset_index(name='quantidade').rename(columns={'marca': 'Marca', 'quantidade': 'Quantidade de Carro em Estoque'}))
+st.bar_chart(quantidade_carros_por_marca, x='Marca', y='Quantidade de Carro em Estoque', color=legenda_filtro, height=500)

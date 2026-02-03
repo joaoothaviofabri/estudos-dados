@@ -64,13 +64,13 @@ cores_padrao = [
     "#FAFFAF"
 ]
 
-# Criação do gráfico e filtro
-st.write("""
-# Informações Técnicas de Carros por Marca
-""")
+# Título principal
+st.markdown(
+"<h1 style='text-align: center'>Gráfico de Informações Técnicas de Carros por Marca em Estoque</h1>", unsafe_allow_html=True
+)
 
 #  Vizualização - Sidebar
-st.header("Filtros")
+st.header('Filtros')
 
 # Filtro de seleção das Marcas (em upper)
 selecao_marcas = st.multiselect('Selecione a marca para vizualizar', list(marcas_rename.keys()))
@@ -95,6 +95,11 @@ if selecao_info_carro in filtro_infos_rename:
 else:
     dados[legenda_filtro] = dados[selecao_info_carro]
 
+# Título do Gráfico
+st.markdown(
+"<h2 style='text-align: center'>Gráfico de Informações dos Carros em Estoque</h2>", unsafe_allow_html=True
+)
+
 # Gráfico de Pizza
 if len(selecao_marcas) == 1:
     quantidade_carros_por_marca = (dados.groupby([legenda_filtro]).size().reset_index(name='valores').rename(columns={'valores': 'Valores'}))
@@ -104,6 +109,6 @@ if len(selecao_marcas) == 1:
 
 # Gráfico de Barra
 else:
-    quantidade_carros_por_marca = (dados.groupby(['marca', legenda_filtro]).size().reset_index(name='quantidade').rename(columns={'marca': 'Marca', 'quantidade': 'Quantidade'}))
-    fig_bar = px.bar(quantidade_carros_por_marca, x='Marca', y='Quantidade', color=legenda_filtro, color_discrete_sequence=cores_padrao, height=500, width=1500)
+    quantidade_carros_por_marca = (dados.groupby(['marca', legenda_filtro]).size().reset_index(name='quantidade').rename(columns={'marca': 'Marca', 'quantidade': 'Quantidade de Carro em Estoque'}))
+    fig_bar = px.bar(quantidade_carros_por_marca, x='Marca', y='Quantidade de Carro em Estoque', color=legenda_filtro, color_discrete_sequence=cores_padrao, height=500)
     st.plotly_chart(fig_bar, use_container_width=True)
