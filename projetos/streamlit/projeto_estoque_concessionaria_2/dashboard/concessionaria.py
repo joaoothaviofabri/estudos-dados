@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from pathlib import Path
 
 # Personalização Geral
 st.set_page_config(layout='wide')
@@ -25,7 +26,8 @@ st.markdown(
 )
 
 #carregamento de dados e filtros
-df = pd.read_csv('carros.csv')
+BASE_DIR = Path(__file__).resolve().parent
+df = pd.read_csv(BASE_DIR / 'carros.csv')
 dados = df.reset_index(drop=True)
 
 dados_marcas = list(dados['marca'].drop_duplicates())
