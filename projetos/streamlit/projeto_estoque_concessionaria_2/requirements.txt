@@ -1,0 +1,6 @@
+# Esse arquivo "txt" serve apenas para indicar as bibliotecas que o cloud do Streamlit precisa baixar
+
+streamlit
+pandas
+plotly
+numpy
