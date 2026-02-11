@@ -6,7 +6,6 @@ import plotly.express as px
 # Carregamento de dados
 df = pd.read_csv('games.csv')
 dados = df
-dados_col = df
 dados_plataforma = ['Todas'] + sorted(dados['plataforma'].unique().tolist())
 
 # Infos
