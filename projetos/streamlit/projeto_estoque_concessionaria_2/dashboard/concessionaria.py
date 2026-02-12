@@ -109,6 +109,10 @@ else:
     # Removendo as colunas categóricas criadas pelo pandas com o "pd.cut()"
 dados[legenda_filtro] = dados[legenda_filtro].cat.remove_unused_categories()
 
+    # Resolvendo o problema de dtype por causa do cat()
+if selecao_info_carro == 'faixa_preco':
+    dados[legenda_filtro] = dados[legenda_filtro].cat.remove_unused_categories()
+
 # Título do Gráfico
 st.markdown(
 "<h2 style='text-align: center'>Gráfico de Informações dos Carros em Estoque</h2>", unsafe_allow_html=True
