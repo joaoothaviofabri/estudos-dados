@@ -105,10 +105,6 @@ if selecao_info_carro in filtro_infos_rename:
 else:
     dados[legenda_filtro] = dados[selecao_info_carro]
 
-# Resolução de bugs
-    # Removendo as colunas categóricas criadas pelo pandas com o "pd.cut()"
-dados[legenda_filtro] = dados[legenda_filtro].cat.remove_unused_categories()
-
     # Resolvendo o problema de dtype por causa do cat()
 if selecao_info_carro == 'faixa_preco':
     dados[legenda_filtro] = dados[legenda_filtro].cat.remove_unused_categories()
