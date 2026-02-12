@@ -33,10 +33,15 @@ dados = df.reset_index(drop=True)
 dados_marcas = list(dados['marca'].drop_duplicates())
 marcas_rename = {marca.upper(): marca for marca in dados_marcas}
 
-dados_info_carros = list(dados.drop(['Unnamed: 0', 'nivel_risco', 'perdas_normalizadas', 'marca', 'numero_portas', 'distancia_eixos', 'comprimento', 'largura', 'altura', 'peso', 'tipo_motor', 'numero_cilindros', 'tamanho_motor', 'diametro_cilindro', 'curso_pistao', 'taxa_compressao', 'potencia', 'rpm_maximo', 'consumo_cidade_mpg', 'consumo_estrada_mpg'], axis=1))
+# FIltro de Preço
+bins_preco = [0, 5000, 10000, 20000, 30000, 40000]
+bins_preco_rename = ['0k - 5k', '5k - 10k', '10k - 20k', '20k - 30k', '30k - 40k']
+dados['faixa_preco'] = pd.cut(dados['preco'], bins=bins_preco, labels=bins_preco_rename)
+
+dados_info_carros = list(dados.drop(['Unnamed: 0', 'nivel_risco', 'perdas_normalizadas', 'marca', 'numero_portas', 'distancia_eixos', 'comprimento', 'largura', 'altura', 'peso', 'tipo_motor', 'numero_cilindros', 'tamanho_motor', 'diametro_cilindro', 'curso_pistao', 'taxa_compressao', 'potencia', 'rpm_maximo', 'consumo_cidade_mpg', 'consumo_estrada_mpg', 'preco'], axis=1))
 
 # Rename dos nomes das colunas, legendas e informações das legendas
-dados_info_rename = {'tipo_combustivel': 'Tipo de Combustivel', 'aspiracao': 'Aspiração do Motor', 'tipo_carroceria': 'Carroceria', 'tracao': 'Tração', 'local_motor': 'Local do Motor', 'sistema_combustivel': 'Sistema de Injeção', 'preco': 'Preço'}
+dados_info_rename = {'tipo_combustivel': 'Tipo de Combustivel', 'aspiracao': 'Aspiração do Motor', 'tipo_carroceria': 'Carroceria', 'tracao': 'Tração', 'local_motor': 'Local do Motor', 'sistema_combustivel': 'Sistema de Injeção', 'preco': 'Preço', 'faixa_preco': 'Faixa de Preço'}
 
 combustivel_rename = {'gasolina': 'Gasolina', 'diesel': 'Diesel'}
 
@@ -51,6 +56,7 @@ local_motor_rename = {'frontal': 'Frontal', 'traseiro': 'Traseiro'}
 sistema_injecao_rename = {'4bbl': '4BBL', 'corpo_simples': 'Corpo Simples', 'duplo_corpo': 'Duplo Corpo', 'idi': 'IDI', 'injecao_multiponto': 'Injeção Multiponto', 'injecao_simples': 'Injeção Simples', 'injecao_simples_sequencial': 'Injeção Simples Sequencial', 'mfi': 'MFI'}
 
 filtro_infos_rename = {'tipo_combustivel': combustivel_rename, 'aspiracao': aspiracao_rename, 'tipo_carroceria': carroceria_rename, 'tracao': tracao_rename, 'local_motor': local_motor_rename, 'sistema_combustivel': sistema_injecao_rename}
+
 
 # Cores padrão do gráfico
 cores_padrao = [
@@ -68,24 +74,26 @@ cores_padrao = [
 
 # Título principal
 st.markdown(
-"<h1 style='text-align: center'>Gráfico de Informações Técnicas de Carros por Marca em Estoque</h1>", unsafe_allow_html=True
+"<h1 style='text-align: center'>Informações Técnicas de Carros por Marca em Estoque</h1>", unsafe_allow_html=True
 )
 
-#  Vizualização - Sidebar
-st.header('Filtros')
+# Colunas
+col1, col2, col3, col4 = st.columns(4)
 
 # Filtro de seleção das Marcas (em upper)
-selecao_marcas = st.multiselect('Selecione a marca para vizualizar:', list(marcas_rename.keys()))
-selecao_marcas = [marcas_rename[m] for m in selecao_marcas]
-if selecao_marcas:
-    dados = dados[dados['marca'].isin(selecao_marcas)]
+with col1, st.container():
+    selecao_marcas = st.multiselect('Selecione a marca para vizualizar:', list(marcas_rename.keys()))
+    selecao_marcas = [marcas_rename[m] for m in selecao_marcas]
+    if selecao_marcas:
+        dados = dados[dados['marca'].isin(selecao_marcas)]
 
-dados['marca'] = dados['marca'].str.upper().str.strip()
+    dados['marca'] = dados['marca'].str.upper().str.strip()
 
 # Filtro de vizualização das informações
-selecao_info_carro = st.selectbox('Selecione a informação que deseja vizualizar:', [dados_info_rename[col] for col in dados_info_carros])
-selecao_info_carro = [col for col, nome in dados_info_rename.items()
-                        if nome == selecao_info_carro][0]
+with col2, st.container():
+    selecao_info_carro = st.selectbox('Selecione a informação que deseja vizualizar:', [dados_info_rename[col] for col in dados_info_carros])
+    selecao_info_carro = [col for col, nome in dados_info_rename.items()
+                            if nome == selecao_info_carro][0]
 
 # Rename da Legenda
 legenda_filtro = dados_info_rename[selecao_info_carro]
@@ -96,6 +104,10 @@ if selecao_info_carro in filtro_infos_rename:
     dados[legenda_filtro] = dados[selecao_info_carro].map(filtro_infos_rename[selecao_info_carro])
 else:
     dados[legenda_filtro] = dados[selecao_info_carro]
+
+# Resolução de bugs
+    # Removendo as colunas categóricas criadas pelo pandas com o "pd.cut()"
+dados[legenda_filtro] = dados[legenda_filtro].cat.remove_unused_categories()
 
 # Título do Gráfico
 st.markdown(
